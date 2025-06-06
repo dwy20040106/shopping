@@ -66,8 +66,13 @@ service.interceptors.request.use(
         // 从localStorage获取token
         const token = localStorage.getItem('token')
         if (token) {
-            // 让每个请求携带token
-            config.headers['Authorization'] = `Bearer ${token}`
+            // 确保token格式正确
+            const formattedToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`
+            config.headers['Authorization'] = formattedToken
+            // 更新localStorage中的token格式
+            if (formattedToken !== token) {
+                localStorage.setItem('token', formattedToken)
+            }
         }
 
         return config
@@ -105,24 +110,26 @@ service.interceptors.response.use(
         if (error.message === 'Network Error') {
             errorMessage = '网络错误，请检查API服务是否正常运行'
             console.error('网络错误:', error)
-        } else if (status === 403) {
-            errorMessage = '没有权限访问该资源'
-            // 可能是 token 过期或无效，清除用户信息
-            localStorage.removeItem('token')
-            localStorage.removeItem('userId')
-            localStorage.removeItem('userType')
-            localStorage.removeItem('username')
-            localStorage.removeItem('email')
-            // 跳转到登录页
-            router.push('/login')
         } else if (status === 401) {
-            errorMessage = error.response?.data?.error || '用户名或密码错误'
+            errorMessage = '登录已过期，请重新登录'
             // 清除用户信息
             localStorage.removeItem('token')
             localStorage.removeItem('userId')
             localStorage.removeItem('userType')
             localStorage.removeItem('username')
             localStorage.removeItem('email')
+            localStorage.removeItem('phone')
+            // 跳转到登录页
+            router.push('/login')
+        } else if (status === 403) {
+            errorMessage = '没有权限访问该资源'
+            // 清除用户信息
+            localStorage.removeItem('token')
+            localStorage.removeItem('userId')
+            localStorage.removeItem('userType')
+            localStorage.removeItem('username')
+            localStorage.removeItem('email')
+            localStorage.removeItem('phone')
             // 跳转到登录页
             router.push('/login')
         } else if (status === 400) {

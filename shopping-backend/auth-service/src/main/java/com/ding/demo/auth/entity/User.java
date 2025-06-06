@@ -1,39 +1,40 @@
 package com.ding.demo.auth.entity;
 
-import jakarta.persistence.*;
+import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
-
 import java.time.LocalDateTime;
 
 @Data
-@Entity
-@Table(name = "users")
+@TableName("users")
 public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @TableField
     private String username;
 
-    @Column(nullable = false)
+    @TableField
     private String password;
 
     private String email;
     private String phone;
 
-    @Column(name = "user_type", nullable = false)
+    @TableField(value = "user_type")
     private String userType = "USER";
 
-    private boolean enabled = true;
+    private Boolean enabled = true;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
+    @TableField(value = "created_at", fill = FieldFill.INSERT)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
-    @Column(name = "updated_at")
+    @TableField(value = "updated_at", fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updatedAt;
+
+    public boolean getEnabled() {
+        return enabled != null && enabled;
+    }
+
+    public boolean isEnabled() {
+        return getEnabled();
+    }
 }

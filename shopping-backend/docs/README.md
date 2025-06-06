@@ -99,19 +99,18 @@
 ### 1. 用户表 `users`
 
 ```sql
-CREATE TABLE `users`  (
-  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '用户ID，主键',
-  `username` varchar(50) CHARACTER SET gb2312 COLLATE gb2312_chinese_ci NOT NULL COMMENT '用户名，唯一',
-  `password` varchar(100) CHARACTER SET gb2312 COLLATE gb2312_chinese_ci NOT NULL COMMENT '用户密码，建议加密存储',
-  `email` varchar(100) CHARACTER SET gb2312 COLLATE gb2312_chinese_ci NULL DEFAULT NULL COMMENT '邮箱地址，可用于找回密码',
-  `phone` varchar(20) CHARACTER SET gb2312 COLLATE gb2312_chinese_ci NULL DEFAULT NULL COMMENT '手机号码',
-  `user_type` varchar(20) CHARACTER SET gb2312 COLLATE gb2312_chinese_ci NOT NULL DEFAULT 'USER' COMMENT '用户类型(USER/ADMIN)',
-  `enabled` tinyint(1) NOT NULL DEFAULT 1 COMMENT '账户是否启用',
-  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '用户注册时间',
-  `updated_at` datetime NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE INDEX `username`(`username`) USING BTREE
-) ENGINE = MyISAM AUTO_INCREMENT = 1 CHARACTER SET = gb2312 COLLATE = gb2312_chinese_ci COMMENT = '平台用户表' ROW_FORMAT = Dynamic;
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY COMMENT '用户ID，主键',
+    username VARCHAR(50) NOT NULL COMMENT '用户名，唯一',
+    password VARCHAR(100) NOT NULL COMMENT '用户密码，建议加密存储',
+    email VARCHAR(100) COMMENT '邮箱地址，可用于找回密码',
+    phone VARCHAR(20) COMMENT '手机号码',
+    user_type VARCHAR(20) NOT NULL DEFAULT 'USER' COMMENT '用户类型(USER/ADMIN)',
+    enabled BOOLEAN NOT NULL DEFAULT TRUE COMMENT '账户是否启用',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '用户注册时间',
+    updated_at DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '最后更新时间',
+    UNIQUE KEY uk_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='平台用户表';
 ```
 
 ------
@@ -262,7 +261,7 @@ FROM
   LEFT JOIN shipping sh ON o.id = sh.order_id;
 ```
 
-✅ 用于前端用户“我的订单”页接口。
+✅ 用于前端用户"我的订单"页接口。
 
 ------
 
@@ -305,7 +304,7 @@ FROM
   JOIN products p ON c.product_id = p.id;
 ```
 
-✅ 用于前端“购物车页面”接口返回结构。
+✅ 用于前端"购物车页面"接口返回结构。
 
 ------
 

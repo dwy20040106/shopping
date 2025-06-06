@@ -44,6 +44,20 @@ const loading = ref(true)
 // 表单引用
 const editFormRef = ref(null)
 
+// 处理登出
+const handleLogout = () => {
+    // 清除用户信息
+    localStorage.removeItem('userId')
+    localStorage.removeItem('userType')
+    localStorage.removeItem('username')
+    localStorage.removeItem('email')
+    localStorage.removeItem('phone')
+    localStorage.removeItem('token')
+
+    // 跳转到登录页
+    router.push('/login')
+}
+
 // 获取用户信息
 const fetchUserInfo = async () => {
     try {
@@ -112,11 +126,16 @@ const saveChanges = async () => {
         loading.value = true
 
         // 发送更新请求
-        await put('/auth/user/update', {
+        const response = await put('/auth/user/update', {
             username: editForm.value.username,
             email: editForm.value.email,
-            phone: editForm.value.phone || undefined
+            phone: editForm.value.phone || ''
         })
+
+        // 如果返回了新token，更新token
+        if (response.token) {
+            localStorage.setItem('token', response.token)
+        }
 
         // 更新成功后刷新用户信息
         await fetchUserInfo()

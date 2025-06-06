@@ -1,11 +1,12 @@
 package com.ding.demo.auth.service;
 
-import com.ding.demo.auth.repository.UserRepository;
-import com.ding.demo.auth.security.JwtTokenProvider;
 import com.ding.demo.auth.dto.AuthResponse;
 import com.ding.demo.auth.dto.LoginRequest;
 import com.ding.demo.auth.dto.RegisterRequest;
 import com.ding.demo.auth.entity.User;
+import com.ding.demo.auth.mapper.UserMapper;
+import com.ding.demo.auth.security.JwtTokenProvider;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -15,74 +16,61 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    private final AuthenticationManager authenticationManager;
-    private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
-    private final JwtTokenProvider tokenProvider;
+        private final AuthenticationManager authenticationManager;
+        private final UserMapper userMapper;
+        private final PasswordEncoder passwordEncoder;
+        private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthService(AuthenticationManager authenticationManager,
-            UserRepository userRepository,
-            PasswordEncoder passwordEncoder,
-            JwtTokenProvider tokenProvider) {
-        this.authenticationManager = authenticationManager;
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.tokenProvider = tokenProvider;
-    }
+        @Transactional
+        public AuthResponse register(RegisterRequest request) {
+                if (userMapper.countByUsername(request.getUsername()) > 0) {
+                        throw new RuntimeException("Username already exists");
+                }
+                if (userMapper.countByEmail(request.getEmail()) > 0) {
+                        throw new RuntimeException("Email already exists");
+                }
 
-    public AuthResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getUsername(),
-                        loginRequest.getPassword()));
+                User user = new User();
+                user.setUsername(request.getUsername());
+                String encodedPassword = passwordEncoder.encode(request.getPassword());
+                user.setPassword(encodedPassword);
+                user.setEmail(request.getEmail());
+                user.setPhone(request.getPhone());
+                user.setUserType("USER");
+                user.setEnabled(true);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+                userMapper.insert(user);
 
-        User user = userRepository.findByUsername(loginRequest.getUsername())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                Authentication authentication = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        return new AuthResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getUserType(),
-                jwt);
-    }
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                String token = jwtTokenProvider.generateTokenFromUserId(user.getId().toString());
 
-    @Transactional
-    public AuthResponse register(RegisterRequest registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new RuntimeException("Username is already taken");
+                return new AuthResponse(token, user.getId(), user.getUsername(), user.getEmail(), user.getPhone(),
+                                user.getUserType());
         }
 
-        User user = new User();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setEmail(registerRequest.getEmail());
-        user.setPhone(registerRequest.getPhone());
-        user.setUserType("USER");
-        user.setEnabled(true);
+        public AuthResponse login(LoginRequest request) {
+                User user = userMapper.findByUsername(request.getUsername());
+                if (user == null) {
+                        throw new RuntimeException("User not found");
+                }
 
-        user = userRepository.save(user);
+                if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+                        throw new RuntimeException("Invalid password");
+                }
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        registerRequest.getUsername(),
-                        registerRequest.getPassword()));
+                Authentication authentication = authenticationManager.authenticate(
+                                new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = tokenProvider.generateToken(authentication);
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+                String token = jwtTokenProvider.generateTokenFromUserId(user.getId().toString());
 
-        return new AuthResponse(
-                user.getId(),
-                user.getUsername(),
-                user.getEmail(),
-                user.getPhone(),
-                user.getUserType(),
-                jwt);
-    }
+                return new AuthResponse(token, user.getId(), user.getUsername(), user.getEmail(), user.getPhone(),
+                                user.getUserType());
+        }
 }

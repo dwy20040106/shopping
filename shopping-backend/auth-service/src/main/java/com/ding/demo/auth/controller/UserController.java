@@ -8,6 +8,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/auth/user")
 @RequiredArgsConstructor
@@ -17,14 +20,18 @@ public class UserController {
 
     @GetMapping("/info")
     public ResponseEntity<UserInfoResponse> getUserInfo(Authentication authentication) {
-        return ResponseEntity.ok(userService.getUserInfo(authentication.getName()));
+        UserInfoResponse response = userService.getUserInfo(authentication.getName());
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Void> updateUserInfo(
-            Authentication authentication,
-            @RequestBody UserUpdateRequest request) {
-        userService.updateUserInfo(authentication.getName(), request);
+    public ResponseEntity<?> updateUserInfo(Authentication authentication, @RequestBody UserUpdateRequest request) {
+        String newToken = userService.updateUserInfo(authentication.getName(), request);
+        if (newToken != null) {
+            Map<String, String> response = new HashMap<>();
+            response.put("token", newToken);
+            return ResponseEntity.ok(response);
+        }
         return ResponseEntity.ok().build();
     }
 }

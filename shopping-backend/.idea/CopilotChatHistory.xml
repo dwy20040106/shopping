@@ -4,6 +4,12 @@
     <option name="conversations">
       <list>
         <Conversation>
+          <option name="createTime" value="1749199184683" />
+          <option name="id" value="01974465632b7e6a8a46ede8694cce3b" />
+          <option name="title" value="新对话 2025年6月06日 16:39:44" />
+          <option name="updateTime" value="1749199184683" />
+        </Conversation>
+        <Conversation>
           <option name="createTime" value="1749097887472" />
           <option name="id" value="01973a83ca037aa5bbf157fd258bcf5a" />
           <option name="title" value="&#10;```&#10;&#10;org.springframework.beans.factory.BeanNotOfRequiredTypeException: Bean named 'ddlApplicationRunner' is expected to be of type 'org.springframework.boot.Runner' but was actually of type 'org.springframework.beans.factory.support.NullBean'&#10;&#9;at org.springframework.beans.factory.support.AbstractBeanFactory.adaptBeanInstance(AbstractBeanFactory.java:410) ~[spring-beans-6.1.4.jar:6.1.4]&#10;&#9;at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:391) ~[spring-beans-6.1.4.jar:6.1.4]&#10;&#9;at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:204) ~[spring-beans-6.1.4.jar:6.1.4]&#10;&#9;at org.springframework.boot.SpringApplication.callRunners(SpringApplication.java:770) ~[spring-boot-3.2.3.jar:3.2.3]&#10;&#9;at org.springframework.boot.SpringApplication.run(SpringApplication.java:341) ~[spring-boot-3.2.3.jar:3.2.3]&#10;&#9;at org.springframework.boot.SpringApplication.run(SpringApplication.java:1354) ~[spring-boot-3.2.3.jar:3.2.3]&#10;&#9;at org.springframework.boot.SpringApplication.run(SpringApplication.java:1343) ~[spring-boot-3.2.3.jar:3.2.3]&#10;&#9;at com.ding.MainApplication.main(MainApplication.java:9) ~[classes/:na]&#10;&#10;```" />

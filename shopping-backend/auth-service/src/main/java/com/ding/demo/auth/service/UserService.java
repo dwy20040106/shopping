@@ -4,7 +4,7 @@ import com.ding.demo.auth.dto.UserInfoResponse;
 import com.ding.demo.auth.dto.UserUpdateRequest;
 
 public interface UserService {
-    UserInfoResponse getUserInfo(String username);
+    UserInfoResponse getUserInfo(String userId);
 
-    void updateUserInfo(String username, UserUpdateRequest request);
+    String updateUserInfo(String userId, UserUpdateRequest request);
 }
